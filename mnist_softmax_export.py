@@ -22,15 +22,15 @@ tf.app.flags.DEFINE_integer('training_iteration', 1000,
 tf.app.flags.DEFINE_integer('model_version', 1,
                             'version number of the model.')
 tf.app.flags.DEFINE_string("data_dir", "/tmp", "The MNIST Data.")
-tf.app.flags.DEFINE_string('work_dir', '/tmp', 'Working directory.')
+tf.app.flags.DEFINE_string('export_dir', '/tmp', 'Working directory.')
 
 FLAGS = tf.app.flags.FLAGS
 
 
 def main(_):
-    if len(sys.argv) < 4 or sys.argv[-1].startswith('-'):
+    if len(sys.argv) < 3 or sys.argv[-1].startswith('--model_version') or sys.argv[-1].startswith("--training_iteration"):
         print('Usage: mnist_softmax_export.py [--training_iteration=x] '
-              '[--model_version]=y data_dir export_dir')
+              '[--model_version=y] --data_dir=z --export_dir=w')
         sys.exit(-1)
     if FLAGS.training_iteration <= 0:
         print("Please specify a positive value for traininig iteration.")
@@ -62,7 +62,7 @@ def main(_):
     y = tf.nn.softmax(tf.matmul(x, w) + b, name="y")
 
     # The cross-entropy
-    cross_entropy = -tf.reduce_sum(y_ * tf.log(y))
+    cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1])) #-tf.reduce_sum(y_ * tf.log(y))
 
     # Define loss and optimizer
     train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
@@ -89,7 +89,7 @@ def main(_):
     print('Done training!')
 
     # Export model
-    export_path_base = sys.argv[-1]
+    export_path_base = FLAGS.export_dir
     export_path = os.path.join(
         tf.compat.as_bytes(export_path_base),
         tf.compat.as_bytes(str(FLAGS.model_version))
