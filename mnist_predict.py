@@ -20,7 +20,7 @@ import tensorflow as tf
 
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2
-import tensorflow_serving.example.mnist_input_data as input_data
+from tensorflow.examples.tutorials.mnist import input_data
 
 tf.app.flags.DEFINE_integer("concurrency", 1,
                             "maximum number of concurrent inference requests")
